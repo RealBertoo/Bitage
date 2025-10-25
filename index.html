@@ -6,6 +6,7 @@
   <title>Bitage</title>
   <style>
     :root{ --bg:#0f1220; --bg-2:#151936; --panel:#1c2147; --panel-2:#232a57; --accent:#5865f2; --text:#e6e8ff; --muted:#aab0d6; }
+    [data-theme="light"]{ --bg:#f6f7fb; --bg-2:#ffffff; --panel:#eef1ff; --panel-2:#e3e8ff; --accent:#5865f2; --text:#0f1220; --muted:#5b628a; }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -18,71 +19,95 @@
     .topbar{grid-column:3; grid-row:1; display:flex; align-items:center; gap:10px; padding:0 14px; border-bottom:1px solid #0d1124; background:var(--bg-2)}
     .search{flex:1}
     .search input{width:100%; background:#0e1430; border:1px solid #1a2554; color:var(--text); border-radius:7px; padding:8px 10px}
+    [data-theme="light"] .search input{background:#fff; border-color:#ccd3ff}
     .nav{padding:12px 10px; overflow:auto}
     .nav h4{margin:12px 6px 6px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em}
     .item{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; color:var(--text); text-decoration:none; cursor:pointer}
     .item:hover{background:var(--panel)}
     .item.active{background:var(--panel-2)}
     .pill{min-width:24px; height:24px; display:grid; place-items:center; background:#0e1430; border:1px solid #1a2554; color:#9fb0ff; border-radius:6px; font-size:12px}
+    [data-theme="light"] .pill{background:#eef1ff; border-color:#cfd6ff; color:#5865f2}
     .main{grid-column:3; grid-row:2; display:grid; grid-template-rows:auto 1fr auto}
     .main-header{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid #0d1124; background:linear-gradient(180deg, rgba(88,101,242,.07), transparent)}
     .badge{padding:4px 8px; border-radius:6px; background:#0e1430; border:1px solid #1a2554; color:#9fb0ff; font-size:12px}
+    [data-theme="light"] .badge{background:#eef1ff; border-color:#cfd6ff; color:#5865f2}
     .content{padding:16px; overflow:auto}
     .messages{display:flex; flex-direction:column; gap:8px}
     .msg{background:#0e1430; border:1px solid #1a2554; padding:10px 12px; border-radius:10px}
     .msg.me{border-color:#3443a8; background:#101a46}
+    [data-theme="light"] .msg{background:#fff; border-color:#dfe5ff}
     .composer{display:flex; gap:8px; padding:10px 16px; border-top:1px solid #0d1124; background:var(--bg-2)}
     .composer input{flex:1; padding:10px 12px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)}
+    [data-theme="light"] .composer input{background:#fff; border-color:#ccd3ff}
     .btn{background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer}
     .btn.ghost{background:#0e1430; color:#cdd5ff; border:1px solid #1a2554}
+    [data-theme="light"] .btn.ghost{background:#fff; color:#5865f2; border-color:#cfd6ff}
+    .toolbar{display:flex; gap:8px}
+    .toolbar .btn.small{padding:8px 10px; font-size:12px}
+    .row{display:flex; gap:8px; align-items:center}
+    .field{display:flex; flex-direction:column; gap:6px; margin:6px 0}
+    .switch{display:inline-flex; align-items:center; gap:8px}
+    .muted{color:var(--muted)}
     @media (max-width:960px){ .app{grid-template-columns:64px 1fr; grid-template-rows:48px 1fr 56px} .sidebar{grid-column:2} .topbar{grid-column:1 / span 2} .main{grid-column:1 / span 2} }
+    video, audio{max-width:100%}
+    .thumb{max-width:180px; border-radius:8px; border:1px solid #1a2554}
   </style>
 </head>
 <body>
-  <div id="app" class="app">
-    <aside class="rail" aria-label="Servers">
+  <div class="app" id="app" data-theme="dark">
+    <aside aria-label="Servers" class="rail">
       <div class="orb active" title="Home">B</div>
-      <div class="orb" title="Community">C</div>
-      <div class="orb" title="Support">S</div>
-      <div class="orb" title="Admin">A</div>
+      <div class="orb" title="Chats">💬</div>
+      <div class="orb" title="Communities">#</div>
+      <div class="orb" title="Friends">👥</div>
+      <div class="orb" title="Settings">⚙️</div>
     </aside>
-    <aside class="sidebar" aria-label="Navigation">
+    <aside aria-label="Navigation" class="sidebar">
       <div class="nav" id="nav">
         <h4>Navigation</h4>
-        <div class="item active" data-view="welcome"><span class="pill">🏠</span> <span>Welcome</span></div>
-        <div class="item" data-view="dms"><span class="pill">💬</span> <span>Direct Messages</span></div>
-        <div class="item" data-view="friends"><span class="pill">👥</span> <span>Friends</span></div>
-        <div class="item" data-view="groups"><span class="pill">#</span> <span>Groups</span></div>
-        <div class="item" data-view="profile"><span class="pill">🧑</span> <span>Profile</span></div>
-        <div class="item" data-view="admin"><span class="pill">🛡️</span> <span>Admin Panel</span></div>
+        <div class="item active" data-view="welcome"><span class="pill">🏠</span> Welcome</div>
+        <div class="item" data-view="chats"><span class="pill">💬</span> Chats</div>
+        <div class="item" data-view="communities"><span class="pill">#</span> Communities</div>
+        <div class="item" data-view="friends"><span class="pill">👥</span> Friends</div>
+        <div class="item" data-view="settings"><span class="pill">⚙️</span> Settings</div>
       </div>
     </aside>
     <header class="topbar">
       <strong id="title">Welcome</strong>
-      <div class="search"><input placeholder="Search Bitage..." /></div>
-      <button class="btn ghost" id="newDm">New DM</button>
+      <div class="search"><input id="search" placeholder="Search Bitage..."/></div>
+      <div class="toolbar">
+        <button class="btn ghost" id="newChat">New Chat</button>
+        <button class="btn ghost" id="toggleTheme">Toggle Theme</button>
+      </div>
     </header>
     <main class="main">
       <div class="main-header">
         <span class="badge" id="badge">Home</span>
-        <span style="color:var(--muted)">Instant UI restored • Demo build</span>
+        <span class="muted">Revamped demo build • No bots • Media enabled</span>
       </div>
       <div class="content" id="content"></div>
       <div class="composer" id="composer" style="display:none">
-        <input id="input" placeholder="Type a message" />
+        <input id="input" placeholder="Type a message"/>
+        <button class="btn small" id="attachPhoto">📷 Photo</button>
+        <button class="btn small" id="attachVideo">🎬 Video</button>
+        <button class="btn small" id="recordVoice">🎙️ Voice</button>
         <button class="btn" id="send">Send</button>
       </div>
     </main>
   </div>
+
   <script>
     const state = {
-      dms:[{id:'u1',name:'Alice',messages:[{from:'Alice',text:'Hey there!'},{from:'me',text:'Hi!'}]},{id:'u2',name:'Bob',messages:[{from:'Bob',text:'Project update?'},{from:'me',text:'Shipped ✅'}]}],
-      activeDM:'u1',
-      groups:[{id:'g1',name:'General',messages:[{from:'System',text:'Welcome to #general'}]}],
-      activeGroup:'g1',
-      requests:[{username:'charlie'}],
-      me:{username:'bitager',status:'online'}
+      chats:[{id:'c1',name:'General Chat',messages:[{from:'System',text:'Welcome to Bitage!'}]}],
+      activeChat:'c1',
+      communities:[{id:'co1',name:'General',messages:[{from:'System',text:'Welcome to #general'}]}],
+      activeCommunity:'co1',
+      friends:[],
+      requests:[],
+      me:{username:'bitager',status:'online',privacy:{showStatus:true, readReceipts:true, allowFriendRequests:true}},
+      theme:'dark'
     };
+
     const nav=document.getElementById('nav');
     const content=document.getElementById('content');
     const title=document.getElementById('title');
@@ -90,119 +115,106 @@
     const composer=document.getElementById('composer');
     const input=document.getElementById('input');
     const send=document.getElementById('send');
+
     let activeView='welcome';
 
-    function viewLabel(v){return({welcome:'Welcome',dms:'Direct Messages',friends:'Friends',groups:'Groups',profile:'Profile',admin:'Admin Panel'})[v]||'Bitage'}
+    function viewLabel(v){return({welcome:'Welcome',chats:'Chats',communities:'Communities',friends:'Friends',settings:'Settings'})[v]||'Bitage'}
+
     function setView(view){
       document.querySelectorAll('.item').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
       title.textContent=viewLabel(view); badge.textContent=viewLabel(view); activeView=view;
       content.innerHTML=renderView(view);
-      composer.style.display=(view==='dms'||view==='groups')?'flex':'none';
-      if(composer.style.display==='flex') input.focus();
+      const showComposer=(view==='chats'||view==='communities');
+      composer.style.display= showComposer ? 'flex' : 'none';
+      if(showComposer) input?.focus();
     }
+
     function renderWelcome(){
       return `<section data-section="welcome">
         <h2>Welcome to Bitage</h2>
-        <p style="color:var(--muted)">The UI is back online. Explore DMs, Friends, Groups, Profile, and Admin Panel.</p>
+        <p class="muted">Explore Chats, Communities, Friends, and Settings. Try sending media in Chats and Communities.</p>
         <div class="messages">
-          <div class="msg">System: Homepage loads instantly.</div>
-          <div class="msg">Tip: Use DMs or Groups to try the composer.</div>
+          <div class="msg">System: Admin Panel removed. Demo has no bots or fake users.</div>
+          <div class="msg">Tip: Use Settings to toggle themes and privacy.</div>
         </div>
       </section>`;
     }
-    function renderDMs(){
-      const dm=state.dms.find(x=>x.id===state.activeDM)||state.dms[0];
-      return `<section data-section="dms">
-        <h2 style="margin:0 0 10px">DMs</h2>
-        <div style="display:flex; gap:12px">
-          <div style="min-width:180px">${state.dms.map(x=>`<div class="item ${x.id===dm.id?'active':''}" data-dm="${x.id}">💠 ${x.name}</div>`).join('')}</div>
-          <div style="flex:1"><div class="messages">${dm.messages.map(m=>`<div class="msg ${m.from==='me'?'me':''}">${m.from==='me'?'You':m.from}: ${m.text}</div>`).join('')}</div></div>
-        </div>
-      </section>`;
-    }
-    function renderFriends(){
-      const req = state.requests.map(r=>`<div class="msg">@${r.username} sent a friend request <button class="btn ghost" data-accept="${r.username}">Accept</button></div>`).join('') || '<div class="msg">No pending requests</div>';
-      return `<section data-section="friends"><h2>Friends</h2><div class="messages">${req}</div></section>`;
-    }
-    function renderGroups(){
-      const g=state.groups.find(x=>x.id===state.activeGroup)||state.groups[0];
-      return `<section data-section="groups">
-        <h2 style="margin:0 0 10px">Groups</h2>
-        <div style="display:flex; gap:12px">
-          <div style="min-width:180px">
-            ${state.groups.map(x=>`<div class="item ${x.id===g.id?'active':''}" data-group="${x.id}"># ${x.name}</div>`).join('')}
-            <div style="display:flex; gap:6px; margin-top:8px">
-              <input id="newGroupName" placeholder="New group" style="flex:1; padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
-              <button class="btn" id="createGroup">Create</button>
-            </div>
+
+    function renderChats(){
+      const chat=state.chats.find(x=>x.id===state.activeChat)||state.chats[0];
+      return `<section data-section="chats">
+        <div class="row" style="justify-content:space-between; margin-bottom:10px">
+          <h2 style="margin:0">Chats</h2>
+          <div class="row">
+            <input id="newChatName" placeholder="New chat name" style="padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
+            <button class="btn" id="createChat">Create</button>
           </div>
-          <div style="flex:1"><div class="messages">${g?g.messages.map(m=>`<div class="msg ${m.from==='me'?'me':''}">${m.from==='me'?'You':m.from}: ${m.text}</div>`).join(''):''}</div></div>
+        </div>
+        <div style="display:flex; gap:12px">
+          <div style="min-width:220px">${state.chats.map(x=>`<div class=\"item ${x.id===chat.id?'active':''}\" data-chat=\"${x.id}\">💬 ${x.name}</div>`).join('')}</div>
+          <div style="flex:1"><div class="messages">${chat?chat.messages.map(m=>renderMessage(m)).join(''):''}</div></div>
         </div>
       </section>`;
     }
-    function renderProfile(){
-      return `<section data-section="profile"><h2>Profile</h2><div class="messages"><div class="msg">Username: <strong>@${state.me.username}</strong></div><div class="msg">Status: <span class="badge">${state.me.status}</span></div></div></section>`;
+
+    function renderCommunities(){
+      const g=state.communities.find(x=>x.id===state.activeCommunity)||state.communities[0];
+      return `<section data-section="communities">
+        <div class="row" style="justify-content:space-between; margin-bottom:10px">
+          <h2 style="margin:0">Communities</h2>
+          <div class="row">
+            <input id="newCommunityName" placeholder="New community" style="padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
+            <button class="btn" id="createCommunity">Create</button>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px">
+          <div style="min-width:220px">
+            ${state.communities.map(x=>`<div class=\"item ${x.id===g.id?'active':''}\" data-community=\"${x.id}\"># ${x.name}</div>`).join('')}
+          </div>
+          <div style="flex:1"><div class="messages">${g?g.messages.map(m=>renderMessage(m)).join(''):''}</div></div>
+        </div>
+      </section>`;
     }
-    function renderAdmin(){
-      return `<section data-section="admin"><h2>Admin Panel</h2><div class="messages"><div class="msg">Users: ${2+state.requests.length}</div><div class="msg">Groups: ${state.groups.length}</div><div class="msg">DM Threads: ${state.dms.length}</div></div></section>`;
-    }
-    function renderView(v){
-      switch(v){
-        case 'welcome': return renderWelcome();
-        case 'dms': return renderDMs();
-        case 'friends': return renderFriends();
-        case 'groups': return renderGroups();
-        case 'profile': return renderProfile();
-        case 'admin': return renderAdmin();
-        default: return '<section><div class="msg">Unknown view</div></section>';
-      }
+
+    function renderFriends(){
+      const friendsList = state.friends.length ? state.friends.map(u=>`<div class=\"item\">@${u}</div>`).join('') : '<div class="msg">No friends yet</div>';
+      return `<section data-section="friends">
+        <h2>Friends</h2>
+        <div class="row" style="gap:10px; margin:10px 0">
+          <input id="friendName" placeholder="Add friend by username" style="flex:1; padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
+          <button class="btn" id="addFriend">Add</button>
+        </div>
+        <div class="messages">${friendsList}</div>
+      </section>`;
     }
 
-    function refresh(){ setView(activeView); }
-
-    // Sidebar interactions
-    nav.addEventListener('click', e=>{
-      const item=e.target.closest('.item'); if(!item) return;
-      const v=item.dataset.view; if(v) return setView(v);
-      const dm=item.dataset.dm; if(dm){ state.activeDM=dm; return setView('dms'); }
-      const group=item.dataset.group; if(group){ state.activeGroup=group; return setView('groups'); }
-    });
-
-    // New DM
-    document.getElementById('newDm').addEventListener('click', ()=>{
-      const id='u'+Math.floor(Math.random()*1000);
-      const name='User'+id.slice(1);
-      state.dms.push({id,name,messages:[{from:name,text:'Hi, this is a demo DM.'}]});
-      state.activeDM=id; setView('dms');
-    });
-
-    // Composer
-    function sendMessage(){
-      const t=input.value.trim(); if(!t) return;
-      if(activeView==='dms'){
-        const dm=state.dms.find(x=>x.id===state.activeDM)||state.dms[0]; if(!dm) return; dm.messages.push({from:'me',text:t});
-      } else if(activeView==='groups'){
-        const g=state.groups.find(x=>x.id===state.activeGroup)||state.groups[0]; if(!g) return; g.messages.push({from:'me',text:t});
-      }
-      input.value=''; refresh();
+    function renderSettings(){
+      const p=state.me.privacy;
+      return `<section data-section="settings">
+        <h2>Settings</h2>
+        <div class="field">
+          <label>Theme</label>
+          <div class="row">
+            <button class="btn ghost" data-theme="dark">Dark</button>
+            <button class="btn ghost" data-theme="light">Light</button>
+            <button class="btn" id="systemTheme">System toggle</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Privacy</label>
+          <label class="switch"><input type="checkbox" id="showStatus" ${p.showStatus?'checked':''}/> Show online status</label>
+          <label class="switch"><input type="checkbox" id="readReceipts" ${p.readReceipts?'checked':''}/> Read receipts</label>
+          <label class="switch"><input type="checkbox" id="allowFriendRequests" ${p.allowFriendRequests?'checked':''}/> Allow friend requests</label>
+        </div>
+        <div class="field">
+          <label>Account</label>
+          <div class="row">
+            <input id="username" value="${state.me.username}" style="padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
+            <button class="btn" id="saveProfile">Save</button>
+          </div>
+        </div>
+      </section>`;
     }
-    document.getElementById('send').addEventListener('click', sendMessage);
-    input.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
 
-    // Create group
-    document.addEventListener('click', e=>{
-      const accept=e.target.closest('[data-accept]');
-      if(accept){ const u=accept.getAttribute('data-accept'); state.requests=state.requests.filter(x=>x.username!==u); refresh(); }
-      if(e.target && e.target.id==='createGroup'){
-        const name=document.getElementById('newGroupName').value.trim(); if(!name) return;
-        const id='g'+(Math.random()*1e6|0);
-        state.groups.push({id,name,messages:[{from:'System',text:`Group ${name} created`}]});
-        state.activeGroup=id; setView('groups');
-      }
-    });
-
-    // Initial render
-    setView('welcome');
-  </script>
-</body>
-</html>
+    function renderMessage(m){
+      if(m.type==='photo') return `<div class="msg ${m.from==='me'?'me':''}">${m.from==='me'?'You':m.from}:<br/><img class="thumb" alt="photo" src="${m.url}"/></div
