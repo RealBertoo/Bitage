@@ -1,385 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitage - Chat Application</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitage - Chat Application (Demo)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0f1115;
+      --panel: #161922;
+      --panel-2: #1c2030;
+      --text: #e6e9ef;
+      --muted: #a7b0c0;
+      --primary: #7aa2f7;
+      --primary-2: #5c7db8;
+      --success: #7ee787;
+      --danger: #f7768e;
+      --warning: #e0af68;
+      --border: #262a36;
+      --accent: #9ece6a;
+    }
+    body { font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; height: 100vh; color: var(--text); background: var(--bg); overflow: hidden; }
+    .app { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
+    .sidebar { background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+    .sidebar .brand { padding: 16px; font-weight: 700; font-size: 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .sidebar .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 12px var(--primary); }
+    .sidebar .nav { padding: 8px; overflow-y: auto; }
+    .nav .group { margin-top: 12px; }
+    .group .title { font-size: 12px; color: var(--muted); letter-spacing: .08em; padding: 10px 10px 6px; text-transform: uppercase; }
+    .nav button { width: 100%; text-align: left; padding: 10px 12px; background: transparent; color: var(--text); border: 0; border-radius: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .nav button:hover { background: var(--panel-2); }
+    .nav button.active { background: #21314f; color: #dbe7ff; outline: 1px solid #2e4c86; }
+    .nav .pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #1f2937; color: var(--muted); margin-left: auto; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-        }
+    .topbar { height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+    .topbar .section-title { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .topbar .actions { display: flex; gap: 8px; }
+    .btn { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; cursor: pointer; }
+    .btn.primary { background: #2a3d66; border-color: #2e4c86; color: #e8f0ff; }
+    .btn.ghost { background: transparent; }
 
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
+    .content { display: grid; grid-template-rows: 54px 1fr; height: 100vh; }
+    .panel { height: calc(100vh - 54px); display: none; }
+    .panel.active { display: grid; grid-template-columns: 320px 1fr; }
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: 240px;
-            background: #2f3136;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #202225;
-        }
+    .list { border-right: 1px solid var(--border); background: var(--panel); display: grid; grid-template-rows: auto 1fr auto; }
+    .list .search { padding: 10px; }
+    .input { width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; }
+    .items { overflow-y: auto; }
+    .item { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .item:hover { background: rgba(255,255,255,0.03); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#4f67a3,#7aa2f7); display: grid; place-items: center; font-weight: 700; }
+    .meta { display: grid; gap: 2px; }
+    .meta .name { font-weight: 600; }
+    .meta .sub { color: var(--muted); font-size: 13px; }
 
-        .sidebar-header {
-            padding: 16px;
-            background: #27282c;
-            border-bottom: 1px solid #202225;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 16px;
-        }
+    .chat { background: linear-gradient(180deg, #0f1115 0%, #0f1115 60%, #101521 100%); display: grid; grid-template-rows: 1fr auto; }
+    .messages { padding: 16px; overflow-y: auto; display: grid; gap: 12px; }
+    .bubble { max-width: 70%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel-2); }
+    .me { justify-self: end; background: #203355; border-color: #2e4c86; }
+    .sys { justify-self: center; background: transparent; border: 0; color: var(--muted); font-size: 12px; }
+    .composer { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px; border-top: 1px solid var(--border); background: var(--panel); }
 
-        .nav-section {
-            padding: 16px 8px;
-        }
+    .friends-actions { display: flex; gap: 8px; padding: 10px; border-bottom: 1px solid var(--border); background: var(--panel); }
+    .friend-requests { padding: 10px; border-bottom: 1px solid var(--border); }
+    .row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 
-        .nav-section-title {
-            color: #8e9297;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            padding: 8px 8px;
-            margin-bottom: 4px;
-        }
+    .group-header { padding: 10px; border-bottom: 1px solid var(--border); background: var(--panel); display: flex; gap: 8px; }
 
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            margin: 2px 0;
-            border-radius: 4px;
-            color: #dcddde;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+    form.settings { display: grid; gap: 12px; padding: 16px; max-width: 640px; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: var(--muted); font-size: 14px; }
+    .field input, .field select, .field textarea { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; }
 
-        .nav-item:hover {
-            background: #393c43;
-            color: #ffffff;
-        }
+    .admin-grid { padding: 16px; display: grid; grid-template-columns: repeat(2,minmax(280px,1fr)); gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .card h4 { margin-bottom: 8px; }
 
-        .nav-item.active {
-            background: #5865f2;
-            color: #ffffff;
-        }
-
-        .nav-item-icon {
-            margin-right: 12px;
-            font-size: 18px;
-        }
-
-        .nav-item-text {
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .nav-divider {
-            height: 1px;
-            background: #3f4147;
-            margin: 8px 12px;
-        }
-
-        /* User Info at bottom of sidebar */
-        .user-info {
-            margin-top: auto;
-            padding: 12px;
-            background: #27282c;
-            border-top: 1px solid #202225;
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #5865f2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            margin-right: 8px;
-        }
-
-        .user-details {
-            flex: 1;
-        }
-
-        .user-name {
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .user-status {
-            color: #b9bbbe;
-            font-size: 12px;
-        }
-
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #36393f;
-        }
-
-        .content-header {
-            height: 48px;
-            background: #36393f;
-            border-bottom: 1px solid #202225;
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .content-header-icon {
-            margin-right: 8px;
-            color: #8e9297;
-        }
-
-        .content-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
-        /* Welcome Screen */
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #dcddde;
-            text-align: center;
-        }
-
-        .welcome-icon {
-            font-size: 80px;
-            margin-bottom: 24px;
-            color: #5865f2;
-        }
-
-        .welcome-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #ffffff;
-        }
-
-        .welcome-subtitle {
-            font-size: 16px;
-            color: #b9bbbe;
-            margin-bottom: 24px;
-        }
-
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            max-width: 600px;
-            margin-top: 32px;
-        }
-
-        .feature-card {
-            background: #2f3136;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: left;
-        }
-
-        .feature-card-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .feature-card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #ffffff;
-        }
-
-        .feature-card-desc {
-            font-size: 14px;
-            color: #b9bbbe;
-        }
-
-        /* Chat Input Area */
-        .chat-input-container {
-            padding: 16px;
-            background: #36393f;
-        }
-
-        .chat-input {
-            background: #40444b;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 16px;
-            color: #dcddde;
-            width: 100%;
-            font-size: 15px;
-        }
-
-        .chat-input::placeholder {
-            color: #72767d;
-        }
-
-        .chat-input:focus {
-            outline: none;
-            background: #383a40;
-        }
-
-        /* Badge for notifications */
-        .notification-badge {
-            background: #f23f43;
-            color: white;
-            border-radius: 12px;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: auto;
-        }
-    </style>
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .panel.active { grid-template-columns: 1fr; }
+      .list { display: none; }
+    }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                Bitage Chat
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Navigation</div>
-                
-                <div class="nav-item active" onclick="switchView('dm')">
-                    <span class="nav-item-icon">💬</span>
-                    <span class="nav-item-text">Direct Messages</span>
-                    <span class="notification-badge">3</span>
-                </div>
-
-                <div class="nav-item" onclick="switchView('friends')">
-                    <span class="nav-item-icon">👥</span>
-                    <span class="nav-item-text">Friends</span>
-                </div>
-
-                <div class="nav-item" onclick="switchView('groups')">
-                    <span class="nav-item-icon">🗂️</span>
-                    <span class="nav-item-text">Groups</span>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <div class="nav-item" onclick="switchView('profile')">
-                    <span class="nav-item-icon">⚙️</span>
-                    <span class="nav-item-text">Profile</span>
-                </div>
-
-                <div class="nav-item" onclick="switchView('admin')">
-                    <span class="nav-item-icon">🛡️</span>
-                    <span class="nav-item-text">Admin Panel</span>
-                </div>
-            </div>
-
-            <div class="user-info">
-                <div class="user-avatar">B</div>
-                <div class="user-details">
-                    <div class="user-name">Bitage User</div>
-                    <div class="user-status">Online</div>
-                </div>
-            </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="dot"></span> Bitage Demo</div>
+      <div class="nav">
+        <div class="group">
+          <div class="title">Navigate</div>
+          <button data-target="dms" class="active">💬 Direct Messages</button>
+          <button data-target="friends">👥 Friends</button>
+          <button data-target="groups">👪 Groups</button>
+          <button data-target="profile">👤 Profile</button>
+          <button data-target="admin">🛠️ Admin Panel</button>
         </div>
+      </div>
+    </aside>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="content-header">
-                <span class="content-header-icon">💬</span>
-                <span id="header-title">Direct Messages</span>
-            </div>
-
-            <div class="content-body">
-                <div class="welcome-screen">
-                    <div class="welcome-icon">🚀</div>
-                    <div class="welcome-title">Welcome to Bitage Chat!</div>
-                    <div class="welcome-subtitle">Your new Discord-like communication platform</div>
-
-                    <div class="feature-list">
-                        <div class="feature-card">
-                            <div class="feature-card-icon">💬</div>
-                            <div class="feature-card-title">Direct Messages</div>
-                            <div class="feature-card-desc">Chat privately with your contacts in real-time</div>
-                        </div>
-
-                        <div class="feature-card">
-                            <div class="feature-card-icon">👥</div>
-                            <div class="feature-card-title">Friends</div>
-                            <div class="feature-card-desc">Manage your friend list and connections</div>
-                        </div>
-
-                        <div class="feature-card">
-                            <div class="feature-card-icon">🗂️</div>
-                            <div class="feature-card-title">Groups</div>
-                            <div class="feature-card-desc">Create and join group conversations</div>
-                        </div>
-
-                        <div class="feature-card">
-                            <div class="feature-card-icon">🛡️</div>
-                            <div class="feature-card-title">Admin Panel</div>
-                            <div class="feature-card-desc">Manage users and configure settings</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" placeholder="Message #general" />
-            </div>
+    <section class="content">
+      <div class="topbar">
+        <div class="section-title"><span id="sectionIcon">💬</span><span id="sectionTitle">Direct Messages</span></div>
+        <div class="actions">
+          <button class="btn ghost" id="newChatBtn">New Chat</button>
+          <button class="btn primary" id="demoSeedBtn">Seed Demo</button>
         </div>
-    </div>
+      </div>
 
-    <script>
-        function switchView(view) {
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Add active class to clicked item
-            event.currentTarget.classList.add('active');
-            
-            // Update header title
-            const headerTitle = document.getElementById('header-title');
-            const viewTitles = {
-                'dm': 'Direct Messages',
-                'friends': 'Friends',
-                'groups': 'Groups',
-                'profile': 'Profile Settings',
-                'admin': 'Admin Panel'
-            };
-            
-            headerTitle.textContent = viewTitles[view] || 'Bitage Chat';
-            
-            // Here you would typically load different content
-            // For now, we'll just update the header
-            console.log('Switched to view:', view);
-        }
-    </script>
-</body>
-</html>
+      <div id="panel-dms" class="panel active">
+        <div class="list">
+          <div class="search"><input id="dmSearch" class="input" placeholder="Search conversations" /></div>
+          <div id="dmList" class="items"></div>
+          <div class="row"><button class="btn" id="startDM">+ Start DM</button></div>
+        </div>
+        <div class="chat">
+          <div id="dmMessages" class="messages"></div>
+          <div class="composer">
+            <input id="dmInput" class="input" placeholder="Type a message..." />
+            <button id="dmSend" class="btn primary">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-friends" class="panel">
+        <div class="list">
+          <div class="friends-actions">
+            <input id="friendName" class="input" placeholder="Add friend by username" />
+            <button id="addFriendBtn" class="btn primary">Add</button>
+          </div>
+          <div class="friend-requests" id="friendRequests"></div>
+          <div class="items" id="friendsList"></div>
+        </div>
+        <div class="chat">
+          <div class="messages" id="friendActivity"></div>
+          <div class="composer">
+            <input class="input" id="friendNote" placeholder="Write a note about your friend..." />
+            <button class="btn" id="saveNote">Save Note</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-groups" class="panel">
+        <div class="list">
+          <div class="group-header">
+            <input id="groupName" class="input" placeholder="Create group name" />
+            <button id="createGroup" class="btn primary">Create</button>
+          </div>
+          <div class="items" id="groupList"></div>
+        </div>
+        <div class="chat">
+          <div class="messages" id="groupMessages"></div>
+          <div class="composer">
+            <input id="groupInput" class="input" placeholder="Message group..." />
+            <button id="groupSend" class="btn primary">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-profile" class="panel">
+        <div class="list">
+          <div class="items">
+            <div class="row"><strong>Account</strong></div>
+            <div class="row">Username: <span id="meUsername">demo_user</span></div>
+            <div class="row">Status: <span id="meStatus">Online</span></div>
+          </div>
+        </div>
+        <div>
+          <form class="settings" id="settingsForm">
+            <h3>Profile Settings</h3>
+            <div class="field">
+              <label>Display Name</label>
+              <input id="displayName" placeholder="Your display name" />
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <select id="status">
+                <option>Online</option>
+                <option>Busy</option>
+                <option>Away</option>
+                <option>Offline</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>About</label>
+              <textarea id="about" rows="4" placeholder="Tell others about you"></textarea>
+            </div>
+            <div class="field">
+              <label>Theme</label>
+              <select id="theme">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+            </div>
+            <div>
+              <button type="submit" class="btn primary">Save Settings</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="panel-admin" class="panel">
+        <div class="admin-grid">
+          <div class="card">
+            <h4>User Management</h4>
+            <button class="btn" id="adminListUsers">List Users</button>
+            <button class="btn" id="adminBanUser">Ban Random User</button>
+            <div id="adminUsers" style="margin-top:8px; color: var(--muted);"></div>
+          </div>
+          <div class="card">
+            <h4>System</h4>
+            <button class="btn" id="adminStats">Show Stats</button>
+            <button class="btn" id="adminClear">Clear Data</button>
+            <div id="adminStatsOut" style="margin-top:8px; color: var(--muted);"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <script>
+    const store = {
+      get k() { return 'bitage-demo-v1'; },
+      load() { return JSON.parse(localStorage.getItem(this.k) || '{}'); },
+      save(data) { localStorage.setItem(this.k, JSON.stringify(data)); },
+      init() {
+        const data = this.load();
+        if (!data.users) data.users = [{ id:'me', name:'Demo User', username:'demo_user', status:'Online'}];
+        if (!data.dms) data.dms = [
+          { id:'u1', name:'Alice', last:'Hey there!', messages:[
+            {from:'Alice', text:'Hey there!' },
+            {from:'me', text:'Hi Alice! Welcome to Bitage demo.'},
+          ]},
+          { id:'u2', name:'Bob', last:'See you', messages:[
+            {from:'Bob', text:'Lunch tomorrow?'},
+            {from:'me', text:'Sounds good!'},
+            {from:'Bob', text:'See you'},
+          ]}
+        ];
+        if (!data.friends) data.friends = [{username:'alice'},{username:'bob'}];
+        if (!data.requests) data.requests = [{username:'charlie'},{username:'diana'}];
+        if (!data.groups) data.groups = [
+          { id:'g1', name:'General', messages:[{from:'System', text:'Welcome to General!'}]},
+          { id:'g2', name:'Developers', messages:[{from:'System', text:'Discuss code here.'}]}
+        ];
+        if (!data.notes) data.notes = {};
+        if (!data.profile) data.profile = { displayName:'Demo User', status:'Online', about:'', theme:'dark' };
+        this.save(data);
+        return data;
+      }
+    };
+
+    let state = store.init();
+
+    function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text) e.textContent=text; return e; }
+    function setActivePanel(key){
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      document.getElementById('panel-'+key).classList.add('active');
+      document.querySelectorAll('.
