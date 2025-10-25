@@ -3,45 +3,206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bitage Demo</title>
-  <link rel="stylesheet" href="assets/styles.css">
+  <title>Bitage</title>
+  <style>
+    :root{ --bg:#0f1220; --bg-2:#151936; --panel:#1c2147; --panel-2:#232a57; --accent:#5865f2; --text:#e6e8ff; --muted:#aab0d6; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .app{display:grid; grid-template-columns:64px 240px 1fr; grid-template-rows:48px 1fr; height:100vh}
+    .rail{grid-row:1 / span 2; background:#0b0e1a; border-right:1px solid #0d1124; padding:8px; display:flex; flex-direction:column; gap:10px; align-items:center}
+    .orb{width:44px; height:44px; border-radius:50%; background:var(--panel); display:grid; place-items:center; color:#c9cffc; cursor:pointer; transition:.15s transform}
+    .orb:hover{transform:translateY(-1px)}
+    .orb.active{outline:2px solid var(--accent); outline-offset:2px}
+    .sidebar{grid-column:2; grid-row:1 / span 2; background:var(--bg-2); border-right:1px solid #0d1124; display:flex; flex-direction:column}
+    .topbar{grid-column:3; grid-row:1; display:flex; align-items:center; gap:10px; padding:0 14px; border-bottom:1px solid #0d1124; background:var(--bg-2)}
+    .search{flex:1}
+    .search input{width:100%; background:#0e1430; border:1px solid #1a2554; color:var(--text); border-radius:7px; padding:8px 10px}
+    .nav{padding:12px 10px; overflow:auto}
+    .nav h4{margin:12px 6px 6px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em}
+    .item{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; color:var(--text); text-decoration:none; cursor:pointer}
+    .item:hover{background:var(--panel)}
+    .item.active{background:var(--panel-2)}
+    .pill{min-width:24px; height:24px; display:grid; place-items:center; background:#0e1430; border:1px solid #1a2554; color:#9fb0ff; border-radius:6px; font-size:12px}
+    .main{grid-column:3; grid-row:2; display:grid; grid-template-rows:auto 1fr auto}
+    .main-header{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid #0d1124; background:linear-gradient(180deg, rgba(88,101,242,.07), transparent)}
+    .badge{padding:4px 8px; border-radius:6px; background:#0e1430; border:1px solid #1a2554; color:#9fb0ff; font-size:12px}
+    .content{padding:16px; overflow:auto}
+    .messages{display:flex; flex-direction:column; gap:8px}
+    .msg{background:#0e1430; border:1px solid #1a2554; padding:10px 12px; border-radius:10px}
+    .msg.me{border-color:#3443a8; background:#101a46}
+    .composer{display:flex; gap:8px; padding:10px 16px; border-top:1px solid #0d1124; background:var(--bg-2)}
+    .composer input{flex:1; padding:10px 12px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)}
+    .btn{background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer}
+    .btn.ghost{background:#0e1430; color:#cdd5ff; border:1px solid #1a2554}
+    @media (max-width:960px){ .app{grid-template-columns:64px 1fr; grid-template-rows:48px 1fr 56px} .sidebar{grid-column:2} .topbar{grid-column:1 / span 2} .main{grid-column:1 / span 2} }
+  </style>
 </head>
 <body>
-  <nav>
-    <button onclick="show('dms')">Direct Messages</button>
-    <button onclick="show('friends')">Friends</button>
-    <button onclick="show('groups')">Groups</button>
-    <button onclick="show('profile')">Profile</button>
-    <button onclick="show('admin')">Admin</button>
-  </nav>
-  <main>
-    <section id="dms"><h2>DMs</h2><div id="dmList"></div><div id="dmMessages"></div><input id="dmInput"><button id="dmSend">Send</button></section>
-    <section id="friends" hidden><h2>Friends</h2><input id="friendName"><button id="addFriendBtn">Add</button><div id="friendRequests"></div><div id="friendsList"></div></section>
-    <section id="groups" hidden><h2>Groups</h2><input id="groupName"><button id="createGroup">Create</button><div id="groupList"></div><div id="groupMessages"></div><input id="groupInput"><button id="groupSend">Send</button></section>
-    <section id="profile" hidden><h2>Profile</h2><div>Username: <span id="meUsername"></span></div><div>Status: <span id="meStatus"></span></div></section>
-    <section id="admin" hidden><h2>Admin</h2><button id="adminStats">Show Stats</button><div id="adminStatsOut"></div></section>
-  </main>
-  <script src="assets/app.js"></script>
+  <div id="app" class="app">
+    <aside class="rail" aria-label="Servers">
+      <div class="orb active" title="Home">B</div>
+      <div class="orb" title="Community">C</div>
+      <div class="orb" title="Support">S</div>
+      <div class="orb" title="Admin">A</div>
+    </aside>
+    <aside class="sidebar" aria-label="Navigation">
+      <div class="nav" id="nav">
+        <h4>Navigation</h4>
+        <div class="item active" data-view="welcome"><span class="pill">🏠</span> <span>Welcome</span></div>
+        <div class="item" data-view="dms"><span class="pill">💬</span> <span>Direct Messages</span></div>
+        <div class="item" data-view="friends"><span class="pill">👥</span> <span>Friends</span></div>
+        <div class="item" data-view="groups"><span class="pill">#</span> <span>Groups</span></div>
+        <div class="item" data-view="profile"><span class="pill">🧑</span> <span>Profile</span></div>
+        <div class="item" data-view="admin"><span class="pill">🛡️</span> <span>Admin Panel</span></div>
+      </div>
+    </aside>
+    <header class="topbar">
+      <strong id="title">Welcome</strong>
+      <div class="search"><input placeholder="Search Bitage..." /></div>
+      <button class="btn ghost" id="newDm">New DM</button>
+    </header>
+    <main class="main">
+      <div class="main-header">
+        <span class="badge" id="badge">Home</span>
+        <span style="color:var(--muted)">Instant UI restored • Demo build</span>
+      </div>
+      <div class="content" id="content"></div>
+      <div class="composer" id="composer" style="display:none">
+        <input id="input" placeholder="Type a message" />
+        <button class="btn" id="send">Send</button>
+      </div>
+    </main>
+  </div>
   <script>
-    const state = Bitage.store.init();
-    function show(id){ document.querySelectorAll('main > section').forEach(s=>s.hidden=(s.id!==id)); }
-    function renderDMs(){ const l=document.getElementById('dmList'); l.innerHTML=''; state.dms.forEach(dm=>{ const b=document.createElement('button'); b.textContent=dm.name; b.onclick=()=>{ state.activeDM=dm.id; Bitage.store.save(state); renderMessages(); }; l.appendChild(b); }); renderMessages(); }
-    function renderMessages(){ const m=document.getElementById('dmMessages'); m.innerHTML=''; const dm=state.dms.find(x=>x.id===state.activeDM)||state.dms[0]; if(!dm) return; dm.messages.forEach(msg=>{ const d=document.createElement('div'); d.textContent=(msg.from==='me'?'You: ':'')+msg.text; m.appendChild(d); }); }
-    document.getElementById('dmSend').onclick=()=>{ const inp=document.getElementById('dmInput'); const t=inp.value.trim(); if(!t) return; const dm=state.dms.find(x=>x.id===state.activeDM); dm.messages.push({from:'me',text:t}); Bitage.store.save(state); inp.value=''; renderMessages(); };
-    document.getElementById('addFriendBtn').onclick=()=>{ const v=document.getElementById('friendName').value.trim(); if(!v) return; state.friends.push({username:v}); Bitage.store.save(state); document.getElementById('friendName').value=''; renderFriends(); };
-    function renderFriends(){ const fl=document.getElementById('friendsList'); fl.innerHTML=''; state.friends.forEach(f=>{ const d=document.createElement('div'); d.textContent='@'+f.username; fl.appendChild(d); }); const rq=document.getElementById('friendRequests'); rq.innerHTML=''; state.requests.forEach(r=>{ const row=document.createElement('div'); row.textContent='@'+r.username+' '; const btn=document.createElement('button'); btn.textContent='Accept'; btn.onclick=()=>{ state.friends.push({username:r.username}); state.requests=state.requests.filter(x=>x.username!==r.username); Bitage.store.save(state); renderFriends(); }; row.appendChild(btn); rq.appendChild(row); }); }
-    document.getElementById('createGroup').onclick=()=>{ const name=document.getElementById('groupName').value.trim(); if(!name) return; const id='g'+(Math.random()*1e6|0); state.groups.push({id,name,messages:[{from:'System',text:`Group ${name} created`}]}); state.activeGroup=id; Bitage.store.save(state); renderGroups(); };
-    document.getElementById('groupSend').onclick=()=>{ const inp=document.getElementById('groupInput'); const t=inp.value.trim(); if(!t) return; const g=state.groups.find(x=>x.id===state.activeGroup); g.messages.push({from:'me',text:t}); Bitage.store.save(state); inp.value=''; renderGroupMessages(); };
-    function renderGroups(){ const gl=document.getElementById('groupList'); gl.innerHTML=''; state.groups.forEach(g=>{ const b=document.createElement('button'); b.textContent=g.name; b.onclick=()=>{ state.activeGroup=g.id; Bitage.store.save(state); renderGroupMessages(); }; gl.appendChild(b); }); renderGroupMessages(); }
-    function renderGroupMessages(){ const wrap=document.getElementById('groupMessages'); wrap.innerHTML=''; const g=state.groups.find(x=>x.id===state.activeGroup)||state.groups[0]; if(!g) return; g.messages.forEach(msg=>{ const d=document.createElement('div'); d.textContent=(msg.from==='me'?'You: ':'')+msg.text; wrap.appendChild(d); }); }
-    // Profile
-    document.getElementById('meUsername').textContent=state.profile.username;
-    document.getElementById('meStatus').textContent=state.profile.status;
-    // Admin
-    document.getElementById('adminStats').onclick=()=>{ document.getElementById('adminStatsOut').textContent = `DMs: ${state.dms.length}, Friends: ${state.friends.length}, Groups: ${state.groups.length}`; };
+    const state = {
+      dms:[{id:'u1',name:'Alice',messages:[{from:'Alice',text:'Hey there!'},{from:'me',text:'Hi!'}]},{id:'u2',name:'Bob',messages:[{from:'Bob',text:'Project update?'},{from:'me',text:'Shipped ✅'}]}],
+      activeDM:'u1',
+      groups:[{id:'g1',name:'General',messages:[{from:'System',text:'Welcome to #general'}]}],
+      activeGroup:'g1',
+      requests:[{username:'charlie'}],
+      me:{username:'bitager',status:'online'}
+    };
+    const nav=document.getElementById('nav');
+    const content=document.getElementById('content');
+    const title=document.getElementById('title');
+    const badge=document.getElementById('badge');
+    const composer=document.getElementById('composer');
+    const input=document.getElementById('input');
+    const send=document.getElementById('send');
+    let activeView='welcome';
 
-    // initial
-    renderDMs(); renderFriends(); renderGroups();
+    function viewLabel(v){return({welcome:'Welcome',dms:'Direct Messages',friends:'Friends',groups:'Groups',profile:'Profile',admin:'Admin Panel'})[v]||'Bitage'}
+    function setView(view){
+      document.querySelectorAll('.item').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+      title.textContent=viewLabel(view); badge.textContent=viewLabel(view); activeView=view;
+      content.innerHTML=renderView(view);
+      composer.style.display=(view==='dms'||view==='groups')?'flex':'none';
+      if(composer.style.display==='flex') input.focus();
+    }
+    function renderWelcome(){
+      return `<section data-section="welcome">
+        <h2>Welcome to Bitage</h2>
+        <p style="color:var(--muted)">The UI is back online. Explore DMs, Friends, Groups, Profile, and Admin Panel.</p>
+        <div class="messages">
+          <div class="msg">System: Homepage loads instantly.</div>
+          <div class="msg">Tip: Use DMs or Groups to try the composer.</div>
+        </div>
+      </section>`;
+    }
+    function renderDMs(){
+      const dm=state.dms.find(x=>x.id===state.activeDM)||state.dms[0];
+      return `<section data-section="dms">
+        <h2 style="margin:0 0 10px">DMs</h2>
+        <div style="display:flex; gap:12px">
+          <div style="min-width:180px">${state.dms.map(x=>`<div class="item ${x.id===dm.id?'active':''}" data-dm="${x.id}">💠 ${x.name}</div>`).join('')}</div>
+          <div style="flex:1"><div class="messages">${dm.messages.map(m=>`<div class="msg ${m.from==='me'?'me':''}">${m.from==='me'?'You':m.from}: ${m.text}</div>`).join('')}</div></div>
+        </div>
+      </section>`;
+    }
+    function renderFriends(){
+      const req = state.requests.map(r=>`<div class="msg">@${r.username} sent a friend request <button class="btn ghost" data-accept="${r.username}">Accept</button></div>`).join('') || '<div class="msg">No pending requests</div>';
+      return `<section data-section="friends"><h2>Friends</h2><div class="messages">${req}</div></section>`;
+    }
+    function renderGroups(){
+      const g=state.groups.find(x=>x.id===state.activeGroup)||state.groups[0];
+      return `<section data-section="groups">
+        <h2 style="margin:0 0 10px">Groups</h2>
+        <div style="display:flex; gap:12px">
+          <div style="min-width:180px">
+            ${state.groups.map(x=>`<div class="item ${x.id===g.id?'active':''}" data-group="${x.id}"># ${x.name}</div>`).join('')}
+            <div style="display:flex; gap:6px; margin-top:8px">
+              <input id="newGroupName" placeholder="New group" style="flex:1; padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
+              <button class="btn" id="createGroup">Create</button>
+            </div>
+          </div>
+          <div style="flex:1"><div class="messages">${g?g.messages.map(m=>`<div class="msg ${m.from==='me'?'me':''}">${m.from==='me'?'You':m.from}: ${m.text}</div>`).join(''):''}</div></div>
+        </div>
+      </section>`;
+    }
+    function renderProfile(){
+      return `<section data-section="profile"><h2>Profile</h2><div class="messages"><div class="msg">Username: <strong>@${state.me.username}</strong></div><div class="msg">Status: <span class="badge">${state.me.status}</span></div></div></section>`;
+    }
+    function renderAdmin(){
+      return `<section data-section="admin"><h2>Admin Panel</h2><div class="messages"><div class="msg">Users: ${2+state.requests.length}</div><div class="msg">Groups: ${state.groups.length}</div><div class="msg">DM Threads: ${state.dms.length}</div></div></section>`;
+    }
+    function renderView(v){
+      switch(v){
+        case 'welcome': return renderWelcome();
+        case 'dms': return renderDMs();
+        case 'friends': return renderFriends();
+        case 'groups': return renderGroups();
+        case 'profile': return renderProfile();
+        case 'admin': return renderAdmin();
+        default: return '<section><div class="msg">Unknown view</div></section>';
+      }
+    }
+
+    function refresh(){ setView(activeView); }
+
+    // Sidebar interactions
+    nav.addEventListener('click', e=>{
+      const item=e.target.closest('.item'); if(!item) return;
+      const v=item.dataset.view; if(v) return setView(v);
+      const dm=item.dataset.dm; if(dm){ state.activeDM=dm; return setView('dms'); }
+      const group=item.dataset.group; if(group){ state.activeGroup=group; return setView('groups'); }
+    });
+
+    // New DM
+    document.getElementById('newDm').addEventListener('click', ()=>{
+      const id='u'+Math.floor(Math.random()*1000);
+      const name='User'+id.slice(1);
+      state.dms.push({id,name,messages:[{from:name,text:'Hi, this is a demo DM.'}]});
+      state.activeDM=id; setView('dms');
+    });
+
+    // Composer
+    function sendMessage(){
+      const t=input.value.trim(); if(!t) return;
+      if(activeView==='dms'){
+        const dm=state.dms.find(x=>x.id===state.activeDM)||state.dms[0]; if(!dm) return; dm.messages.push({from:'me',text:t});
+      } else if(activeView==='groups'){
+        const g=state.groups.find(x=>x.id===state.activeGroup)||state.groups[0]; if(!g) return; g.messages.push({from:'me',text:t});
+      }
+      input.value=''; refresh();
+    }
+    document.getElementById('send').addEventListener('click', sendMessage);
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
+
+    // Create group
+    document.addEventListener('click', e=>{
+      const accept=e.target.closest('[data-accept]');
+      if(accept){ const u=accept.getAttribute('data-accept'); state.requests=state.requests.filter(x=>x.username!==u); refresh(); }
+      if(e.target && e.target.id==='createGroup'){
+        const name=document.getElementById('newGroupName').value.trim(); if(!name) return;
+        const id='g'+(Math.random()*1e6|0);
+        state.groups.push({id,name,messages:[{from:'System',text:`Group ${name} created`}]});
+        state.activeGroup=id; setView('groups');
+      }
+    });
+
+    // Initial render
+    setView('welcome');
   </script>
 </body>
 </html>
