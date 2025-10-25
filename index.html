@@ -1,220 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bitage</title>
-  <style>
-    :root{ --bg:#0f1220; --bg-2:#151936; --panel:#1c2147; --panel-2:#232a57; --accent:#5865f2; --text:#e6e8ff; --muted:#aab0d6; }
-    [data-theme="light"]{ --bg:#f6f7fb; --bg-2:#ffffff; --panel:#eef1ff; --panel-2:#e3e8ff; --accent:#5865f2; --text:#0f1220; --muted:#5b628a; }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    .app{display:grid; grid-template-columns:64px 240px 1fr; grid-template-rows:48px 1fr; height:100vh}
-    .rail{grid-row:1 / span 2; background:#0b0e1a; border-right:1px solid #0d1124; padding:8px; display:flex; flex-direction:column; gap:10px; align-items:center}
-    .orb{width:44px; height:44px; border-radius:50%; background:var(--panel); display:grid; place-items:center; color:#c9cffc; cursor:pointer; transition:.15s transform}
-    .orb:hover{transform:translateY(-1px)}
-    .orb.active{outline:2px solid var(--accent); outline-offset:2px}
-    .sidebar{grid-column:2; grid-row:1 / span 2; background:var(--bg-2); border-right:1px solid #0d1124; display:flex; flex-direction:column}
-    .topbar{grid-column:3; grid-row:1; display:flex; align-items:center; gap:10px; padding:0 14px; border-bottom:1px solid #0d1124; background:var(--bg-2)}
-    .search{flex:1}
-    .search input{width:100%; background:#0e1430; border:1px solid #1a2554; color:var(--text); border-radius:7px; padding:8px 10px}
-    [data-theme="light"] .search input{background:#fff; border-color:#ccd3ff}
-    .nav{padding:12px 10px; overflow:auto}
-    .nav h4{margin:12px 6px 6px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em}
-    .item{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; color:var(--text); text-decoration:none; cursor:pointer}
-    .item:hover{background:var(--panel)}
-    .item.active{background:var(--panel-2)}
-    .pill{min-width:24px; height:24px; display:grid; place-items:center; background:#0e1430; border:1px solid #1a2554; color:#9fb0ff; border-radius:6px; font-size:12px}
-    [data-theme="light"] .pill{background:#eef1ff; border-color:#cfd6ff; color:#5865f2}
-    .main{grid-column:3; grid-row:2; display:grid; grid-template-rows:auto 1fr auto}
-    .main-header{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid #0d1124; background:linear-gradient(180deg, rgba(88,101,242,.07), transparent)}
-    .badge{padding:4px 8px; border-radius:6px; background:#0e1430; border:1px solid #1a2554; color:#9fb0ff; font-size:12px}
-    [data-theme="light"] .badge{background:#eef1ff; border-color:#cfd6ff; color:#5865f2}
-    .content{padding:16px; overflow:auto}
-    .messages{display:flex; flex-direction:column; gap:8px}
-    .msg{background:#0e1430; border:1px solid #1a2554; padding:10px 12px; border-radius:10px}
-    .msg.me{border-color:#3443a8; background:#101a46}
-    [data-theme="light"] .msg{background:#fff; border-color:#dfe5ff}
-    .composer{display:flex; gap:8px; padding:10px 16px; border-top:1px solid #0d1124; background:var(--bg-2)}
-    .composer input{flex:1; padding:10px 12px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)}
-    [data-theme="light"] .composer input{background:#fff; border-color:#ccd3ff}
-    .btn{background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer}
-    .btn.ghost{background:#0e1430; color:#cdd5ff; border:1px solid #1a2554}
-    [data-theme="light"] .btn.ghost{background:#fff; color:#5865f2; border-color:#cfd6ff}
-    .toolbar{display:flex; gap:8px}
-    .toolbar .btn.small{padding:8px 10px; font-size:12px}
-    .row{display:flex; gap:8px; align-items:center}
-    .field{display:flex; flex-direction:column; gap:6px; margin:6px 0}
-    .switch{display:inline-flex; align-items:center; gap:8px}
-    .muted{color:var(--muted)}
-    @media (max-width:960px){ .app{grid-template-columns:64px 1fr; grid-template-rows:48px 1fr 56px} .sidebar{grid-column:2} .topbar{grid-column:1 / span 2} .main{grid-column:1 / span 2} }
-    video, audio{max-width:100%}
-    .thumb{max-width:180px; border-radius:8px; border:1px solid #1a2554}
-  </style>
-</head>
-<body>
-  <div class="app" id="app" data-theme="dark">
-    <aside aria-label="Servers" class="rail">
-      <div class="orb active" title="Home">B</div>
-      <div class="orb" title="Chats">💬</div>
-      <div class="orb" title="Communities">#</div>
-      <div class="orb" title="Friends">👥</div>
-      <div class="orb" title="Settings">⚙️</div>
-    </aside>
-    <aside aria-label="Navigation" class="sidebar">
-      <div class="nav" id="nav">
-        <h4>Navigation</h4>
-        <div class="item active" data-view="welcome"><span class="pill">🏠</span> Welcome</div>
-        <div class="item" data-view="chats"><span class="pill">💬</span> Chats</div>
-        <div class="item" data-view="communities"><span class="pill">#</span> Communities</div>
-        <div class="item" data-view="friends"><span class="pill">👥</span> Friends</div>
-        <div class="item" data-view="settings"><span class="pill">⚙️</span> Settings</div>
-      </div>
-    </aside>
-    <header class="topbar">
-      <strong id="title">Welcome</strong>
-      <div class="search"><input id="search" placeholder="Search Bitage..."/></div>
-      <div class="toolbar">
-        <button class="btn ghost" id="newChat">New Chat</button>
-        <button class="btn ghost" id="toggleTheme">Toggle Theme</button>
-      </div>
-    </header>
-    <main class="main">
-      <div class="main-header">
-        <span class="badge" id="badge">Home</span>
-        <span class="muted">Revamped demo build • No bots • Media enabled</span>
-      </div>
-      <div class="content" id="content"></div>
-      <div class="composer" id="composer" style="display:none">
-        <input id="input" placeholder="Type a message"/>
-        <button class="btn small" id="attachPhoto">📷 Photo</button>
-        <button class="btn small" id="attachVideo">🎬 Video</button>
-        <button class="btn small" id="recordVoice">🎙️ Voice</button>
-        <button class="btn" id="send">Send</button>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    const state = {
-      chats:[{id:'c1',name:'General Chat',messages:[{from:'System',text:'Welcome to Bitage!'}]}],
-      activeChat:'c1',
-      communities:[{id:'co1',name:'General',messages:[{from:'System',text:'Welcome to #general'}]}],
-      activeCommunity:'co1',
-      friends:[],
-      requests:[],
-      me:{username:'bitager',status:'online',privacy:{showStatus:true, readReceipts:true, allowFriendRequests:true}},
-      theme:'dark'
-    };
-
-    const nav=document.getElementById('nav');
-    const content=document.getElementById('content');
-    const title=document.getElementById('title');
-    const badge=document.getElementById('badge');
-    const composer=document.getElementById('composer');
-    const input=document.getElementById('input');
-    const send=document.getElementById('send');
-
-    let activeView='welcome';
-
-    function viewLabel(v){return({welcome:'Welcome',chats:'Chats',communities:'Communities',friends:'Friends',settings:'Settings'})[v]||'Bitage'}
-
-    function setView(view){
-      document.querySelectorAll('.item').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
-      title.textContent=viewLabel(view); badge.textContent=viewLabel(view); activeView=view;
-      content.innerHTML=renderView(view);
-      const showComposer=(view==='chats'||view==='communities');
-      composer.style.display= showComposer ? 'flex' : 'none';
-      if(showComposer) input?.focus();
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        localStorage.removeItem('bitage-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', mode);
+        localStorage.setItem('bitage-theme', mode);
+      }
     }
 
-    function renderWelcome(){
-      return `<section data-section="welcome">
-        <h2>Welcome to Bitage</h2>
-        <p class="muted">Explore Chats, Communities, Friends, and Settings. Try sending media in Chats and Communities.</p>
-        <div class="messages">
-          <div class="msg">System: Admin Panel removed. Demo has no bots or fake users.</div>
-          <div class="msg">Tip: Use Settings to toggle themes and privacy.</div>
-        </div>
-      </section>`;
+    // Media controls demo
+    let playing = false; let prog = 35; let timer;
+    const bar = document.getElementById('prog');
+    const playBtn = document.getElementById('play');
+    function tick(){ prog = Math.min(100, prog + 1); bar.style.width = prog + '%'; if(prog>=100) {clearInterval(timer); playing=false; playBtn.textContent='Play';}}
+    playBtn.addEventListener('click', ()=>{
+      playing = !playing;
+      playBtn.textContent = playing ? 'Pause' : 'Play';
+      clearInterval(timer);
+      if(playing) timer = setInterval(tick, 300);
+    });
+
+    // Composer send
+    document.getElementById('send').addEventListener('click', ()=>{
+      const input = document.getElementById('composer');
+      const text = input.value.trim();
+      if(!text) return;
+      const div = document.createElement('div');
+      div.className='msg me';
+      div.innerHTML = `<div style=\"color:var(--muted);font-size:12px;margin-bottom:4px\">You</div>${text}`;
+      messages.appendChild(div);
+      input.value='';
+      content.scrollTop = content.scrollHeight;
+    });
+
+    // Sidebar view switcher
+    const views = ['Chats','Communities','Friends','Settings'];
+    function renderSidebarTabs(){
+      const groups = [
+        {title:'Navigate', items: views.map(v=>({id:'view:'+v, label:v}))}
+      ];
+      const wrapper = document.createElement('div');
+      wrapper.className='nav';
+      wrapper.innerHTML = '';
+      // replace nav with dynamic loader
+      nav.innerHTML='';
+      const section = document.createElement('h4'); section.textContent='Views'; nav.appendChild(section);
+      views.forEach(v=>{
+        const it = document.createElement('div'); it.className='item'; it.innerHTML=`<span class='pill'>${v[0]}</span><span>${v}</span>`;
+        it.addEventListener('click', ()=>{ renderNav(v); [...nav.querySelectorAll('.item')].forEach(i=>i.classList.remove('active')); it.classList.add('active'); });
+        nav.appendChild(it);
+      });
     }
 
-    function renderChats(){
-      const chat=state.chats.find(x=>x.id===state.activeChat)||state.chats[0];
-      return `<section data-section="chats">
-        <div class="row" style="justify-content:space-between; margin-bottom:10px">
-          <h2 style="margin:0">Chats</h2>
-          <div class="row">
-            <input id="newChatName" placeholder="New chat name" style="padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
-            <button class="btn" id="createChat">Create</button>
-          </div>
-        </div>
-        <div style="display:flex; gap:12px">
-          <div style="min-width:220px">${state.chats.map(x=>`<div class=\"item ${x.id===chat.id?'active':''}\" data-chat=\"${x.id}\">💬 ${x.name}</div>`).join('')}</div>
-          <div style="flex:1"><div class="messages">${chat?chat.messages.map(m=>renderMessage(m)).join(''):''}</div></div>
-        </div>
-      </section>`;
-    }
+    // Theme toggle button
+    document.getElementById('toggleTheme').addEventListener('click', ()=>{
+      const cur = document.documentElement.getAttribute('data-theme');
+      setTheme(cur==='dark'?'light':'dark');
+    });
 
-    function renderCommunities(){
-      const g=state.communities.find(x=>x.id===state.activeCommunity)||state.communities[0];
-      return `<section data-section="communities">
-        <div class="row" style="justify-content:space-between; margin-bottom:10px">
-          <h2 style="margin:0">Communities</h2>
-          <div class="row">
-            <input id="newCommunityName" placeholder="New community" style="padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
-            <button class="btn" id="createCommunity">Create</button>
-          </div>
-        </div>
-        <div style="display:flex; gap:12px">
-          <div style="min-width:220px">
-            ${state.communities.map(x=>`<div class=\"item ${x.id===g.id?'active':''}\" data-community=\"${x.id}\"># ${x.name}</div>`).join('')}
-          </div>
-          <div style="flex:1"><div class="messages">${g?g.messages.map(m=>renderMessage(m)).join(''):''}</div></div>
-        </div>
-      </section>`;
-    }
+    // Search filter
+    document.getElementById('search').addEventListener('input', (e)=>{
+      const q = e.target.value.toLowerCase();
+      [...nav.querySelectorAll('.item')].forEach(el=>{
+        const txt = el.textContent.toLowerCase();
+        el.style.display = txt.includes(q) ? '' : 'none';
+      });
+    });
 
-    function renderFriends(){
-      const friendsList = state.friends.length ? state.friends.map(u=>`<div class=\"item\">@${u}</div>`).join('') : '<div class="msg">No friends yet</div>';
-      return `<section data-section="friends">
-        <h2>Friends</h2>
-        <div class="row" style="gap:10px; margin:10px 0">
-          <input id="friendName" placeholder="Add friend by username" style="flex:1; padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
-          <button class="btn" id="addFriend">Add</button>
-        </div>
-        <div class="messages">${friendsList}</div>
-      </section>`;
-    }
-
-    function renderSettings(){
-      const p=state.me.privacy;
-      return `<section data-section="settings">
-        <h2>Settings</h2>
-        <div class="field">
-          <label>Theme</label>
-          <div class="row">
-            <button class="btn ghost" data-theme="dark">Dark</button>
-            <button class="btn ghost" data-theme="light">Light</button>
-            <button class="btn" id="systemTheme">System toggle</button>
-          </div>
-        </div>
-        <div class="field">
-          <label>Privacy</label>
-          <label class="switch"><input type="checkbox" id="showStatus" ${p.showStatus?'checked':''}/> Show online status</label>
-          <label class="switch"><input type="checkbox" id="readReceipts" ${p.readReceipts?'checked':''}/> Read receipts</label>
-          <label class="switch"><input type="checkbox" id="allowFriendRequests" ${p.allowFriendRequests?'checked':''}/> Allow friend requests</label>
-        </div>
-        <div class="field">
-          <label>Account</label>
-          <div class="row">
-            <input id="username" value="${state.me.username}" style="padding:8px; border-radius:8px; border:1px solid #1a2554; background:#0e1430; color:var(--text)" />
-            <button class="btn" id="saveProfile">Save</button>
-          </div>
-        </div>
-      </section>`;
-    }
-
-    function renderMessage(m){
-      if(m.type==='photo') return `<div class="msg ${m.from==='me'?'me':''}">${m.from==='me'?'You':m.from}:<br/><img class="thumb" alt="photo" src="${m.url}"/></div
+    // Init
+    const saved = localStorage.getItem('bitage-theme');
+    if(saved) setTheme(saved);
+    renderRail();
+    renderSidebarTabs();
+    renderNav('Chats');
+    openThread('general', '#general');
+  </script>
+</body>
+</html>
