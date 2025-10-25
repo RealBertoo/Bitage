@@ -3,152 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitage - Your Bitcoin Exchange Platform</title>
+    <title>Bitage - Chat Application</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
+            height: 100vh;
+            overflow: hidden;
         }
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 240px;
+            background: #2f3136;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #202225;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            background: #27282c;
+            border-bottom: 1px solid #202225;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .nav-section {
+            padding: 16px 8px;
+        }
+
+        .nav-section-title {
+            color: #8e9297;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 8px 8px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 4px;
+            color: #dcddde;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: #393c43;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: #5865f2;
+            color: #ffffff;
+        }
+
+        .nav-item-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .nav-item-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: #3f4147;
+            margin: 8px 12px;
+        }
+
+        /* User Info at bottom of sidebar */
+        .user-info {
+            margin-top: auto;
+            padding: 12px;
+            background: #27282c;
+            border-top: 1px solid #202225;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 2rem 0;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-status {
+            color: #b9bbbe;
+            font-size: 12px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #36393f;
+        }
+
+        .content-header {
+            height: 48px;
+            background: #36393f;
+            border-bottom: 1px solid #202225;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .content-header-icon {
+            margin-right: 8px;
+            color: #8e9297;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #dcddde;
             text-align: center;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            color: #5865f2;
         }
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
         }
-        .tagline {
-            font-size: 1.3rem;
-            opacity: 0.9;
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #b9bbbe;
+            margin-bottom: 24px;
         }
-        .features {
-            padding: 4rem 0;
-            background: #f8f9fa;
-        }
-        .features h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #667eea;
-        }
-        .feature-grid {
+
+        .feature-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            max-width: 600px;
+            margin-top: 32px;
         }
+
         .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            background: #2f3136;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
         }
-        .feature-card:hover {
-            transform: translateY(-5px);
+
+        .feature-card-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
-        .feature-card h3 {
-            color: #667eea;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+
+        .feature-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #ffffff;
         }
-        .cta {
-            background: #667eea;
+
+        .feature-card-desc {
+            font-size: 14px;
+            color: #b9bbbe;
+        }
+
+        /* Chat Input Area */
+        .chat-input-container {
+            padding: 16px;
+            background: #36393f;
+        }
+
+        .chat-input {
+            background: #40444b;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #dcddde;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        .chat-input::placeholder {
+            color: #72767d;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            background: #383a40;
+        }
+
+        /* Badge for notifications */
+        .notification-badge {
+            background: #f23f43;
             color: white;
-            padding: 4rem 0;
-            text-align: center;
-        }
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        .cta-button {
-            display: inline-block;
-            background: white;
-            color: #667eea;
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            text-decoration: none;
-            border-radius: 50px;
-            margin-top: 1.5rem;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-        .cta-button:hover {
-            background: #f8f9fa;
-        }
-        footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 2rem 0;
+            border-radius: 12px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: auto;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>🪙 Bitage</h1>
-            <p class="tagline">Your Trusted Bitcoin Exchange Platform</p>
-        </div>
-    </header>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                Bitage Chat
+            </div>
 
-    <section class="features">
-        <div class="container">
-            <h2>Why Choose Bitage?</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>🔒 Secure Trading</h3>
-                    <p>Industry-leading security measures to protect your assets. Multi-signature wallets and cold storage ensure your Bitcoin stays safe.</p>
+            <div class="nav-section">
+                <div class="nav-section-title">Navigation</div>
+                
+                <div class="nav-item active" onclick="switchView('dm')">
+                    <span class="nav-item-icon">💬</span>
+                    <span class="nav-item-text">Direct Messages</span>
+                    <span class="notification-badge">3</span>
                 </div>
-                <div class="feature-card">
-                    <h3>⚡ Fast Transactions</h3>
-                    <p>Lightning-fast order execution and instant deposits. Trade Bitcoin without delays and capitalize on market opportunities.</p>
+
+                <div class="nav-item" onclick="switchView('friends')">
+                    <span class="nav-item-icon">👥</span>
+                    <span class="nav-item-text">Friends</span>
                 </div>
-                <div class="feature-card">
-                    <h3>💰 Low Fees</h3>
-                    <p>Competitive trading fees that maximize your profits. No hidden charges, transparent fee structure for all transactions.</p>
+
+                <div class="nav-item" onclick="switchView('groups')">
+                    <span class="nav-item-icon">🗂️</span>
+                    <span class="nav-item-text">Groups</span>
                 </div>
-                <div class="feature-card">
-                    <h3>📊 Advanced Tools</h3>
-                    <p>Professional trading interface with real-time charts, technical indicators, and market analysis tools for informed decisions.</p>
+
+                <div class="nav-divider"></div>
+
+                <div class="nav-item" onclick="switchView('profile')">
+                    <span class="nav-item-icon">⚙️</span>
+                    <span class="nav-item-text">Profile</span>
                 </div>
-                <div class="feature-card">
-                    <h3>🌍 Global Access</h3>
-                    <p>Trade from anywhere in the world, 24/7. Multi-currency support and localized payment methods for your convenience.</p>
+
+                <div class="nav-item" onclick="switchView('admin')">
+                    <span class="nav-item-icon">🛡️</span>
+                    <span class="nav-item-text">Admin Panel</span>
                 </div>
-                <div class="feature-card">
-                    <h3>🎓 Learning Resources</h3>
-                    <p>Comprehensive guides and tutorials for beginners. Expert insights and market analysis to help you succeed in crypto trading.</p>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">B</div>
+                <div class="user-details">
+                    <div class="user-name">Bitage User</div>
+                    <div class="user-status">Online</div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <section class="cta">
-        <div class="container">
-            <h2>Ready to Start Trading?</h2>
-            <p>Join thousands of traders who trust Bitage for their Bitcoin transactions</p>
-            <a href="#" class="cta-button">Get Started Now</a>
-        </div>
-    </section>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <span class="content-header-icon">💬</span>
+                <span id="header-title">Direct Messages</span>
+            </div>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Bitage. All rights reserved.</p>
+            <div class="content-body">
+                <div class="welcome-screen">
+                    <div class="welcome-icon">🚀</div>
+                    <div class="welcome-title">Welcome to Bitage Chat!</div>
+                    <div class="welcome-subtitle">Your new Discord-like communication platform</div>
+
+                    <div class="feature-list">
+                        <div class="feature-card">
+                            <div class="feature-card-icon">💬</div>
+                            <div class="feature-card-title">Direct Messages</div>
+                            <div class="feature-card-desc">Chat privately with your contacts in real-time</div>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-card-icon">👥</div>
+                            <div class="feature-card-title">Friends</div>
+                            <div class="feature-card-desc">Manage your friend list and connections</div>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-card-icon">🗂️</div>
+                            <div class="feature-card-title">Groups</div>
+                            <div class="feature-card-desc">Create and join group conversations</div>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-card-icon">🛡️</div>
+                            <div class="feature-card-title">Admin Panel</div>
+                            <div class="feature-card-desc">Manage users and configure settings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" placeholder="Message #general" />
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <script>
+        function switchView(view) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            event.currentTarget.classList.add('active');
+            
+            // Update header title
+            const headerTitle = document.getElementById('header-title');
+            const viewTitles = {
+                'dm': 'Direct Messages',
+                'friends': 'Friends',
+                'groups': 'Groups',
+                'profile': 'Profile Settings',
+                'admin': 'Admin Panel'
+            };
+            
+            headerTitle.textContent = viewTitles[view] || 'Bitage Chat';
+            
+            // Here you would typically load different content
+            // For now, we'll just update the header
+            console.log('Switched to view:', view);
+        }
+    </script>
 </body>
 </html>
