@@ -1,1 +1,47 @@
-<!DOCTYPE html><html><body>Temp commit to fix editor corruption. Full implementation will be added in follow-up commit.</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitage Demo</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <nav>
+    <button onclick="show('dms')">Direct Messages</button>
+    <button onclick="show('friends')">Friends</button>
+    <button onclick="show('groups')">Groups</button>
+    <button onclick="show('profile')">Profile</button>
+    <button onclick="show('admin')">Admin</button>
+  </nav>
+  <main>
+    <section id="dms"><h2>DMs</h2><div id="dmList"></div><div id="dmMessages"></div><input id="dmInput"><button id="dmSend">Send</button></section>
+    <section id="friends" hidden><h2>Friends</h2><input id="friendName"><button id="addFriendBtn">Add</button><div id="friendRequests"></div><div id="friendsList"></div></section>
+    <section id="groups" hidden><h2>Groups</h2><input id="groupName"><button id="createGroup">Create</button><div id="groupList"></div><div id="groupMessages"></div><input id="groupInput"><button id="groupSend">Send</button></section>
+    <section id="profile" hidden><h2>Profile</h2><div>Username: <span id="meUsername"></span></div><div>Status: <span id="meStatus"></span></div></section>
+    <section id="admin" hidden><h2>Admin</h2><button id="adminStats">Show Stats</button><div id="adminStatsOut"></div></section>
+  </main>
+  <script src="assets/app.js"></script>
+  <script>
+    const state = Bitage.store.init();
+    function show(id){ document.querySelectorAll('main > section').forEach(s=>s.hidden=(s.id!==id)); }
+    function renderDMs(){ const l=document.getElementById('dmList'); l.innerHTML=''; state.dms.forEach(dm=>{ const b=document.createElement('button'); b.textContent=dm.name; b.onclick=()=>{ state.activeDM=dm.id; Bitage.store.save(state); renderMessages(); }; l.appendChild(b); }); renderMessages(); }
+    function renderMessages(){ const m=document.getElementById('dmMessages'); m.innerHTML=''; const dm=state.dms.find(x=>x.id===state.activeDM)||state.dms[0]; if(!dm) return; dm.messages.forEach(msg=>{ const d=document.createElement('div'); d.textContent=(msg.from==='me'?'You: ':'')+msg.text; m.appendChild(d); }); }
+    document.getElementById('dmSend').onclick=()=>{ const inp=document.getElementById('dmInput'); const t=inp.value.trim(); if(!t) return; const dm=state.dms.find(x=>x.id===state.activeDM); dm.messages.push({from:'me',text:t}); Bitage.store.save(state); inp.value=''; renderMessages(); };
+    document.getElementById('addFriendBtn').onclick=()=>{ const v=document.getElementById('friendName').value.trim(); if(!v) return; state.friends.push({username:v}); Bitage.store.save(state); document.getElementById('friendName').value=''; renderFriends(); };
+    function renderFriends(){ const fl=document.getElementById('friendsList'); fl.innerHTML=''; state.friends.forEach(f=>{ const d=document.createElement('div'); d.textContent='@'+f.username; fl.appendChild(d); }); const rq=document.getElementById('friendRequests'); rq.innerHTML=''; state.requests.forEach(r=>{ const row=document.createElement('div'); row.textContent='@'+r.username+' '; const btn=document.createElement('button'); btn.textContent='Accept'; btn.onclick=()=>{ state.friends.push({username:r.username}); state.requests=state.requests.filter(x=>x.username!==r.username); Bitage.store.save(state); renderFriends(); }; row.appendChild(btn); rq.appendChild(row); }); }
+    document.getElementById('createGroup').onclick=()=>{ const name=document.getElementById('groupName').value.trim(); if(!name) return; const id='g'+(Math.random()*1e6|0); state.groups.push({id,name,messages:[{from:'System',text:`Group ${name} created`}]}); state.activeGroup=id; Bitage.store.save(state); renderGroups(); };
+    document.getElementById('groupSend').onclick=()=>{ const inp=document.getElementById('groupInput'); const t=inp.value.trim(); if(!t) return; const g=state.groups.find(x=>x.id===state.activeGroup); g.messages.push({from:'me',text:t}); Bitage.store.save(state); inp.value=''; renderGroupMessages(); };
+    function renderGroups(){ const gl=document.getElementById('groupList'); gl.innerHTML=''; state.groups.forEach(g=>{ const b=document.createElement('button'); b.textContent=g.name; b.onclick=()=>{ state.activeGroup=g.id; Bitage.store.save(state); renderGroupMessages(); }; gl.appendChild(b); }); renderGroupMessages(); }
+    function renderGroupMessages(){ const wrap=document.getElementById('groupMessages'); wrap.innerHTML=''; const g=state.groups.find(x=>x.id===state.activeGroup)||state.groups[0]; if(!g) return; g.messages.forEach(msg=>{ const d=document.createElement('div'); d.textContent=(msg.from==='me'?'You: ':'')+msg.text; wrap.appendChild(d); }); }
+    // Profile
+    document.getElementById('meUsername').textContent=state.profile.username;
+    document.getElementById('meStatus').textContent=state.profile.status;
+    // Admin
+    document.getElementById('adminStats').onclick=()=>{ document.getElementById('adminStatsOut').textContent = `DMs: ${state.dms.length}, Friends: ${state.friends.length}, Groups: ${state.groups.length}`; };
+
+    // initial
+    renderDMs(); renderFriends(); renderGroups();
+  </script>
+</body>
+</html>
